@@ -1,0 +1,119 @@
+criar o modelo de dados
+
+criar a base de dados
+
+criar um arquivo que popula a base de dados com dados de exemplo
+
+criar um arquivo que cria/recria a base de dados em caso de erro com os dados de exemplo
+
+-------------------------
+criar as classes em js para lidar com o banco de dados
+
+...
+
+
+criar as classes do backend
+
+criar um metodo de read/seleção 
+
+criar um metodo de inserir dados
+
+...
+
+c r u d
+
+create
+
+    anotacao           anotacao insere
+    nota               insere nota (tem que ter anotação)
+    cartao             insere cartao ( tem que ter nota )
+
+read
+    
+    tudo                retorna todos anotações, notas e cartões 
+
+    anotacao           todas
+                       ler  
+                       ler pelo id
+                       minhas notas  
+                       ids minhas notas
+                        >cartoes das minhas notas<
+                        >ids dos cartoes das minhas notas<
+    
+    nota               todas, 
+                       ler
+                       ler pelo id
+                       meus cartoes
+                       ids meus cartoes
+
+    cartao             todos
+                       ler
+                       ler pelo id
+
+
+update
+
+    anotacao           atualiza
+
+    nota               atualiza
+
+    cartao             atualiza
+
+
+delete
+
+    anotacao           deleta também as notas e cartões associados 
+
+    nota               deleta também os cartões associados 
+
+    cartao             deleta
+
+
+seria legar poder fazer isso:
+
+anotacao.notas  << retornando as notas filhos
+anotacao.notas.cartoes  << retornando os cartoes filhos das notas filhos
+e o mesmo para os outros
+nota.cartoes 
+
+---------------------------
+usar o express para criar as rotas
+
+
+
+create
+
+    anotacao           POST /anotacao
+    nota               POST /nota
+    cartao             POST /cartao
+
+read
+    
+    tudo         x      retorna todos anotações, notas e cartões 
+
+    anotacao           GET /anotacao/todas     - todas
+                       GET /anotacao/1         - ler pelo id 
+                       GET /anotacao/1/notas   - ler minhas notas  
+    
+    nota               GET /nota/todas         - todas
+                       GET /nota/1             - ler pelo id 
+                       GET /nota/1/cartoes     - ler meus cartoes  
+
+    cartao             GET /cartao/todos       - todas
+                       GET /cartao/1           - ler pelo id 
+
+
+update
+
+    anotacao           UPDATE /anotacao/1      - atualiza
+    nota               UPDATE /nota/1          - atualiza
+    cartao             UPDATE /cartao/1        - atualiza
+
+
+delete
+
+    anotacao           DELETA /anotacao/1      - deleta
+    nota               DELETA /nota/1          - deleta  
+    cartao             DELETA /cartao/1        - deleta
+
+
