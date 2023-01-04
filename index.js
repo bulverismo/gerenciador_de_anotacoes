@@ -5,7 +5,7 @@ const Cartao = require('./Cartao.js')
 const Express = require('express')
 
 const app = Express()
-const PORTA = 3000
+const PORTA = process.env.PORT || 3000
 
 const validarString = (string, atributo) => {
 
@@ -397,5 +397,3 @@ app.listen(PORTA , (err) => {
     if (err) console.log(err)
     console.log(`Ouvindo na porta ${PORTA}`)
 })
-
-module.exports = app
