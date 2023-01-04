@@ -22,10 +22,10 @@ let nota = new Nota()
 let cartao = new Cartao()
 let banco = new BancoDeDados()
 
-//banco.inicializarBanco()
-//    .then( ret => console.log("inicializado ") )
-//    .catch( erro => console.log(erro) )
-//
+banco.inicializarBanco()
+    .then( ret => console.log("inicializado ") )
+    .catch( erro => console.log(erro) )
+
 
 app.use(Express.static('publico', { extensions: ['html', 'htm']}))
 app.use(Express.json())
@@ -398,4 +398,4 @@ app.listen(PORTA , (err) => {
     console.log(`Ouvindo na porta ${PORTA}`)
 })
 
-//module.exports = app
+module.exports = app
