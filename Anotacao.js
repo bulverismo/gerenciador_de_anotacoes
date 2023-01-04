@@ -20,6 +20,7 @@ class Anotacao extends BaseGeral {
 
                     this.retorno.dados = listaIdsDasNotas
                     this.retorno.mensagem = "Notas de uma anotação foram buscadas com sucesso."
+                    this.retorno.sucesso = true
                 }else{
                     this.trataErro(`Anotação não tem notas ou não existe.`)
                 }
@@ -31,24 +32,25 @@ class Anotacao extends BaseGeral {
         return this.retorno
       
     }
-    async preencherObjetoPeloId(id) {
+    async preencherObjetoPeloId() {
  
-        await this.buscarPorId(id)
+        await this.buscarPorId()
             .then( dados => {
                 this.retorno.dados = dados 
 
                 if (dados.length > 0) {
                     dados = dados[0]
-                    this.retorno.mensagem = `Anotação com id ${id} encontrado.`
+                    this.retorno.sucesso = true
+                    this.retorno.mensagem = `Anotação com id ${this.id} encontrado.`
                     this.id = dados.id
                     this.titulo = dados.titulo
                     this.resumo = dados.resumo
                 }else{
-                    this.trataErro(`Anotação com id ${id} não encontrado.`)
+                    this.trataErro(`Anotação com id ${this.id} não encontrado.`)
                 }
             })
             .catch( erro => {
-                this.trataErro(`Ocorreu um erro ao tentar buscar id de tipo ${this.entidade}.`)
+                this.trataErro(`Ocorreu um erro ao tentar buscar id de tipo ${this.entidade}. >> ERRO: ${erro}`)
             })
 
         return this.retorno
@@ -62,6 +64,7 @@ class Anotacao extends BaseGeral {
                 if (notasDeUmaAnotacao.length > 0) {
                     this.retorno.dados = notasDeUmaAnotacao
                     this.retorno.mensagem = `Notas da anotação id ${this.id} foram buscadas com sucesso.`
+                    this.retorno.sucesso = true
                 }else{
                     this.trataErro("Anotação não tem notas associadas ou não existe.")
                 }

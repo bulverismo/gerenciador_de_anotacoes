@@ -7,33 +7,59 @@ const Express = require('express')
 const app = Express()
 const PORTA = 3000
 
-let banco = new BancoDeDados()
+const validarString = (string, atributo) => {
 
-banco.inicializarBanco()
-    .then( ret => console.log(ret) )
-    .catch( erro => console.log(erro) )
+    if (!string) {
+        return atributo
+    }else{
+        return string
+    }
+    
+}
 
 let anotacao = new Anotacao()
 let nota = new Nota()
 let cartao = new Cartao()
+let banco = new BancoDeDados()
 
-//// Bem vindo
+//banco.inicializarBanco()
+//    .then( ret => console.log("inicializado ") )
+//    .catch( erro => console.log(erro) )
+//
 
-app.get('/', (requisicao, resposta) => {
-    resposta.send('Bem vindo')
-})
+app.use(Express.static('public', { extensions: ['html', 'htm']}))
+app.use(Express.json())
+
+// TODO: Validar requisicao.body
 
 //// ANOTAÇÕES
 
     //// CRIAÇÃO 
 
-app.post('/anotacao', (requisicao, resposta) => {
-    resposta.send('criando anotação')
+app.post('/api/anotacao', (requisicao, resposta) => {
+
+    let titulo = requisicao.body.titulo
+    let resumo = requisicao.body.resumo
+
+    anotacao.titulo = titulo ? titulo : ""
+    anotacao.resumo = resumo ? resumo : ""
+
+    anotacao.inserir()
+    .then( dados => {
+        resposta.send(dados)
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+        resposta.send("Erro ao tentar inserir.")
+    })
+
+    console.log(`POST anotação`)
+    console.log(requisicao.body)
 })
 
     //// LEITURA
 
-app.get('/anotacao/todas', (requisicao, resposta) => {
+app.get('/api/anotacao', (requisicao, resposta) => {
     
     anotacao.todas()
     .then( data => {
@@ -43,39 +69,89 @@ app.get('/anotacao/todas', (requisicao, resposta) => {
     console.log('GET todas anotações')
 })
 
-app.get('/anotacao/:idAnotacao', (requisicao, resposta) => {
+app.get('/api/anotacao/:idAnotacao', (requisicao, resposta) => {
     let idAnotacao = requisicao.params.idAnotacao
  
+    anotacao.id = idAnotacao
     
+    anotacao.ler()
+        .then( data => {
+        resposta.send(data)
+    })
+    
+    console.log(`GET anotação ${idAnotacao}`)
+})
+
+app.get('/api/anotacao/:idAnotacao/notas', (requisicao, resposta) => {
+    let idAnotacao = requisicao.params.idAnotacao
+
+    anotacao.id = idAnotacao
+
+    anotacao.buscarMinhasNotas()
     .then( data => {
         resposta.send(data)
     })
     
-    console.log('GET todas anotações')
-    console.log(idAnotacao)
-    resposta.send(`Buscando anotação ${idAnotacao}`)
-})
-
-app.get('/anotacao/:idAnotacao/notas', (requisicao, resposta) => {
-    let idAnotacao = requisicao.params.idAnotacao
-    console.log(idAnotacao)
-    resposta.send(`Buscando notas da anotação ${idAnotacao}`)
+    console.log(`GET notas da anotação ${idAnotacao}`)
 })
     
     //// ATUALIZAÇÃO
 
-app.put('/anotacao/:idAnotacao', (requisicao, resposta) => {
+
+app.put('/api/anotacao/:idAnotacao', async (requisicao, resposta) => {
+
     let idAnotacao = requisicao.params.idAnotacao
-    console.log(idAnotacao)
-    resposta.send(`Atualizando anotação ${idAnotacao}`)
+    let titulo = requisicao.body.titulo
+    let resumo = requisicao.body.resumo
+    let retorno
+
+    anotacao.id = idAnotacao
+
+    await anotacao.preencherObjetoPeloId(idAnotacao)
+    .then( dados => {
+        console.log(dados)
+        if (dados.sucesso) {
+            console.log("Conseguiu preencher objeto anotação pelo id")
+        }else{
+            console.log("Erro ao tentar preencher o objeto pelo id.")
+        }
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+    })
+
+    anotacao.titulo = validarString(titulo, anotacao.titulo)
+    anotacao.resumo = validarString(resumo, anotacao.resumo)
+
+    await anotacao.atualiza()
+    .then( dados => {
+        retorno = dados
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+        retorno = erro
+    })
+
+    resposta.send(retorno)
+
+    console.log(`PUT anotação`)
+    console.log(requisicao.body)
+
 })
 
     //// DELEÇÃO 
 
-app.delete('/anotacao/:idAnotacao', (requisicao, resposta) => {
+app.delete('/api/anotacao/:idAnotacao', (requisicao, resposta) => {
     let idAnotacao = requisicao.params.idAnotacao
-    console.log(idAnotacao)
-    resposta.send(`Deletando anotação ${idAnotacao}`)
+
+    anotacao.id = idAnotacao
+
+    anotacao.deleta()
+    .then( data => {
+        resposta.send(data)
+    })
+    
+    console.log(`DELETE anotacao ${idAnotacao}`)
 })
 
 
@@ -84,13 +160,32 @@ app.delete('/anotacao/:idAnotacao', (requisicao, resposta) => {
 
     //// CRIAÇÃO 
 
-app.post('/nota', (requisicao, resposta) => {
-    resposta.send('criando nota')
+app.post('/api/nota', (requisicao, resposta) => {
+
+    let titulo = requisicao.body.titulo
+    let resumo = requisicao.body.resumo
+    let idAnotacao = requisicao.body.id_anotacao
+
+    nota.titulo = titulo ? titulo : ""
+    nota.resumo = resumo ? resumo : ""
+    nota.idAnotacao = idAnotacao
+
+    nota.inserir()
+    .then( dados => {
+        resposta.send(dados)
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+        resposta.send("Erro ao tentar inserir.")
+    })
+
+    console.log(`POST nota`)
+    console.log(requisicao.body)
 })
 
     //// LEITURA
 
-app.get('/nota/todas', (requisicao, resposta) => {
+app.get('/api/nota', (requisicao, resposta) => {
 
     nota.todas()
     .then( data => {
@@ -100,47 +195,121 @@ app.get('/nota/todas', (requisicao, resposta) => {
     console.log('GET todas notas')
 })
 
-app.get('/nota/:idNota', (requisicao, resposta) => {
+app.get('/api/nota/:idNota', (requisicao, resposta) => {
     let idNota = requisicao.params.idNota
-    console.log(idNota)
-    resposta.send(`Buscando nota ${idNota}`)
+
+    nota.id = idNota
+
+    nota.ler()
+    .then( data => {
+        resposta.send(data)
+    })
+
+    console.log(`GET nota ${idNota}`)
 })
 
-app.get('/nota/:idNota/cartoes', (requisicao, resposta) => {
+app.get('/api/nota/:idNota/cartoes', (requisicao, resposta) => {
     let idNota = requisicao.params.idNota
-    console.log(idNota)
-    resposta.send(`Buscando cartões da nota ${idNota}`)
+
+    nota.id = idNota
+
+    nota.buscarMeusCartoes()
+    .then( data => {
+        resposta.send(data)
+    })
+
+    console.log(`GET cartoes da nota ${idNota}`)
 })
 
     //// ATUALIZAÇÃO
 
-app.put('/nota/:idNota', (requisicao, resposta) => {
+app.put('/api/nota/:idNota', async (requisicao, resposta) => {
     let idNota = requisicao.params.idNota
-    console.log(idNota)
-    resposta.send(`Atualizando nota ${idNota}`)
+    let titulo = requisicao.body.titulo
+    let resumo = requisicao.body.resumo
+    let idAnotacao = requisicao.body.id_anotacao
+    let retorno
+
+    nota.id = idNota
+
+    await nota.preencherObjetoPeloId()
+    .then( dados => {
+        console.log(dados)
+        if (dados.sucesso) {
+            console.log("Conseguiu preencher objeto anotação pelo id")
+        }else{
+            console.log("Erro ao tentar preencher o objeto pelo id.")
+        }
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+    })
+
+    nota.titulo = validarString(titulo, nota.titulo)
+    nota.resumo = validarString(resumo, nota.resumo)
+    nota.idAnotacao = idAnotacao
+
+    await nota.atualiza()
+    .then( dados => {
+        retorno = dados
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+        retorno = erro
+    })
+
+    resposta.send(retorno)
+
+    console.log(`PUT nota`)
+    console.log(requisicao.body)
+
 })
 
     //// DELEÇÃO
 
-app.delete('/nota/:idNota', (requisicao, resposta) => {
+app.delete('/api/nota/:idNota', (requisicao, resposta) => {
     let idNota = requisicao.params.idNota
-    console.log(idNota)
-    resposta.send(`Deletando nota ${idNota}`)
+
+    nota.id = idNota
+
+    nota.deleta()
+    .then( data => {
+        resposta.send(data)
+    })
+
+    console.log(`DELETE nota ${idNota}`)
 })
-
-
 
 ///// CARTÕES
 
     //// CRIAÇÃO
 
-app.post('/cartao', (requisicao, resposta) => {
-    resposta.send('criando cartão')
+app.post('/api/cartao', (requisicao, resposta) => {
+
+    let titulo = requisicao.body.titulo
+    let resumo = requisicao.body.resumo
+    let idNota = requisicao.body.id_nota
+
+    cartao.titulo = titulo ? titulo : ""
+    cartao.resumo = resumo ? resumo : ""
+    cartao.idNota = idNota
+
+    cartao.inserir()
+    .then( dados => {
+        resposta.send(dados)
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+        resposta.send("Erro ao tentar inserir.")
+    })
+
+    console.log(`POST cartão`)
+    console.log(requisicao.body)
 })
 
     //// LEITURA
 
-app.get('/cartao/todos', (requisicao, resposta) => {
+app.get('/api/cartao', (requisicao, resposta) => {
 
     cartao.todas()
     .then( data => {
@@ -150,29 +319,82 @@ app.get('/cartao/todos', (requisicao, resposta) => {
     console.log('GET todos cartões')
 })
 
-app.get('/cartao/:idCartao', (requisicao, resposta) => {
+app.get('/api/cartao/:idCartao', (requisicao, resposta) => {
     let idCartao = requisicao.params.idCartao
-    console.log(idCartao)
-    resposta.send(`Buscando cartão ${idCartao}`)
+
+    cartao.id = idCartao
+
+    cartao.ler()
+    .then( data => {
+        resposta.send(data)
+    })
+    
+    console.log(`GET cartão ${idCartao}`)
 })
 
     //// ATUALIZAÇÃO
 
-app.put('/cartao/:idCartao', (requisicao, resposta) => {
+app.put('/api/cartao/:idCartao', async (requisicao, resposta) => {
     let idCartao = requisicao.params.idCartao
-    console.log(idCartao)
-    resposta.send(`Atualizando cartão ${idCartao}`)
+    let titulo = requisicao.body.titulo
+    let resumo = requisicao.body.resumo
+    let idNota = requisicao.body.id_nota
+    let retorno
+
+    cartao.id = idCartao
+
+    await cartao.preencherObjetoPeloId()
+    .then( dados => {
+        console.log(dados)
+        if (dados.sucesso) {
+            console.log("Conseguiu preencher objeto cartão pelo id")
+        }else{
+            console.log("Erro ao tentar preencher o cartão pelo id.")
+        }
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+    })
+
+    cartao.titulo = validarString(titulo, cartao.titulo)
+    cartao.resumo = validarString(resumo, cartao.resumo)
+    cartao.idNota = idNota
+
+    await cartao.atualiza()
+    .then( dados => {
+        retorno = dados
+    })
+    .catch( erro => {
+        console.log(`Ocorreu o erro ${erro}`)
+        retorno = erro
+    })
+
+    resposta.send(retorno)
+
+    console.log(`PUT cartão`)
+    console.log(requisicao.body)
+
 })
 
     //// DELEÇÃO
 
-app.delete('/cartao/:idCartao', (requisicao, resposta) => {
+app.delete('/api/cartao/:idCartao', (requisicao, resposta) => {
     let idCartao = requisicao.params.idCartao
-    console.log(idCartao)
-    resposta.send(`Deletando cartão ${idCartao}`)
+
+    cartao.id = idCartao
+
+    cartao.deleta()
+    .then( data => {
+        resposta.send(data)
+    })
+    
+    console.log(`DELETE cartão ${idCartao}`)
+
 })
 
-app.listen(PORTA , () => {
+app.listen(PORTA , (err) => {
+
+    if (err) console.log(err)
     console.log(`Ouvindo na porta ${PORTA}`)
 })
 

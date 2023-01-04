@@ -42,9 +42,6 @@ class BaseGeral extends BancoDeDados {
     async ler() {
 
         if (this.id) {
-            //let metodo = "preencherObjetoPeloId"
-            
-            //return await this[metodo](this.id)
             return await this.preencherObjetoPeloId(this.id)
         }else{
             this.trataErro("Objeto não está associado a nenhum id")
@@ -63,6 +60,7 @@ class BaseGeral extends BancoDeDados {
                 this.id = idInserido
                 this.retorno.dados = { "idInserido": idInserido }
                 this.retorno.mensagem = `${entidade} inserida com sucesso.`
+                this.retorno.sucesso = true
             })
             .catch( erro => {
                 this.trataErro(`Ocorreu um erro ao tentar inserir ${entidade}.`)
@@ -76,7 +74,7 @@ class BaseGeral extends BancoDeDados {
         let entidade = this.escolherEntidade()
         let metodo = `deleta${entidade}`
 
-        await this.deletaCartao()
+        await this[metodo]()
             .then( linhasApagadas => {
 
                 if (linhasApagadas > 0) {
@@ -104,6 +102,7 @@ class BaseGeral extends BancoDeDados {
                 if (todos.length > 0) {
                     this.retorno.dados = todos
                     this.retorno.mensagem = `Conseguiu buscar todos registros de entidades do tipo ${entidade}.`
+                    this.retorno.sucesso = true
                 }else{
                     this.trataErro(`Não foram encontradas registros de entidades do tipo ${entidade}.`)
                 }
@@ -127,6 +126,7 @@ class BaseGeral extends BancoDeDados {
                 if (linhasModificadas > 0) {
                     this.retorno.dados = { "linhasModificadas": linhasModificadas }
                     this.retorno.mensagem = `Atualização do registro do tipo ${entidade} feita com sucesso.`
+                    this.retorno.sucesso = true
                 }else{
                     this.trataErro(`Não foi possível realizar atualização da entidade do tipo ${entidade}.`)
                 }

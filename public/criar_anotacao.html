@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <title>Caderno de notas virtual</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    </head>
+
+    <body>
+        <div id="container-alerta">
+        </div>
+
+        <div class="container pt-3">
+
+            <div class="row">
+                <div class="col">
+
+                    <div class="card text-center">
+
+                        <div class="card-header">
+
+                            <div class="input-group mb-3">
+
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroup-sizing-default">Titulo</span>
+                                </div>
+
+                                <input id="input-titulo-anotacao" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+
+                            </div>
+
+
+
+                        </div>
+
+                        <div id="resumo-anotacao" class="card-footer">
+
+                            <div class="input-group">
+
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Resumo</span>
+                                </div>
+
+                                <textarea id="input-resumo-anotacao" class="form-control" aria-label="With textarea"></textarea>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col text-center">
+                <hr>
+                <button id="botao-salvar-anotacao" class="btn btn-primary">
+                    Salvar Anotação
+                </button>
+            </div>
+
+        </div>
+
+        <script src="anotacao.js"></script>
+        <script src="notificacao.js"></script>
+        <script src="criar-anotacao.js"></script>
+
+    </body>
+
+</html>

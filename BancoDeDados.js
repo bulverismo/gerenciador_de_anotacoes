@@ -25,13 +25,13 @@ class BancoDeDados extends Consultas {
     inicializarBanco() {
         return new Promise((resolver, rejeitar) => {
             try {
-            this.conexao.exec(Consultas.destruirTabelas);
-            console.log("Destruiu as tabelas.")
-            this.conexao.exec(Consultas.criarTabelas);
-            console.log("Recriou as tabelas.")
-            this.conexao.exec(Consultas.popularTabelas);
-            console.log("Populou as tabelas.")
-            resolver("resolvido")
+                this.conexao.exec(Consultas.destruirTabelas);
+                console.log("Destruiu as tabelas.")
+                this.conexao.exec(Consultas.criarTabelas);
+                console.log("Recriou as tabelas.")
+                this.conexao.exec(Consultas.popularTabelas);
+                console.log("Populou as tabelas.")
+                resolver("resolvido")
             }
             catch(erro) {
                 rejeitar("erro")
@@ -47,13 +47,15 @@ class BancoDeDados extends Consultas {
         return mensagemDeErro
     }
     
-    queryGenerica(sql) {
+    queryGenerica() {
+
+        let sql = this.sql
 
         return new Promise((resolver, rejeitar) => {
-            this.conexao.all(this.sql, [], (erro, linhas) => {
+            this.conexao.all(sql, [], (erro, linhas) => {
                 if (erro) {
-                    let mensagemDeErro = `Ao tentar executar o sql >> ${sql} << retornou o seguinte erro >> ${erro.message} <<`
-                    console.log(mensagemDeErro)
+                    
+                    let mensagemDeErro = BancoDeDados.trataMensagemDeErro(sql, erro)
                     rejeitar(mensagemDeErro)
                 }else{
                     console.log(`Query retornou ${linhas.length} linhas`)
@@ -64,7 +66,9 @@ class BancoDeDados extends Consultas {
 
     }
 
-    executarInsercao(sql) {
+    executarInsercao() {
+
+        let sql = this.sql
 
         return new Promise((resolver, rejeitar) => {
 
@@ -78,13 +82,13 @@ class BancoDeDados extends Consultas {
                     }
                 })
 
-                this.conexao.run(this.sql, [], function(erro) {
+                this.conexao.run(sql, [], function(erro) {
                     if (erro) {
                         let mensagemDeErro = BancoDeDados.trataMensagemDeErro(sql, erro)
                         rejeitar(mensagemDeErro)
                     }else{
                         let idRecemInserido = this.lastID
-                        console.log(`uma linha foi inserida com o id ${idRecemInserido}`)
+                        console.log(`Uma linha foi inserida com o id ${idRecemInserido}`)
                         resolver(idRecemInserido)
                     }
                 })
@@ -93,7 +97,9 @@ class BancoDeDados extends Consultas {
 
     }
  
-    executarAtualizacao(sql) {
+    executarAtualizacao() {
+
+        let sql = this.sql
 
         return new Promise((resolver, rejeitar) => {
 
@@ -107,7 +113,7 @@ class BancoDeDados extends Consultas {
                     }
                 }) 
 
-                this.conexao.run(this.sql, [], function(erro) {
+                this.conexao.run(sql, [], function(erro) {
                     if (erro) {
                         let mensagemDeErro = BancoDeDados.trataMensagemDeErro(sql, erro)
                         rejeitar(mensagemDeErro)
@@ -123,6 +129,7 @@ class BancoDeDados extends Consultas {
     }
  
     executarDelecao() {
+        let sql = this.sql
 
         return new Promise((resolver, rejeitar) => {
 
@@ -136,7 +143,7 @@ class BancoDeDados extends Consultas {
                     }
                 })
 
-                this.conexao.run(this.sql, function(erro) {
+                this.conexao.run(sql, function(erro) {
                     if (erro) {
                         let mensagemDeErro = BancoDeDados.trataMensagemDeErro(sql, erro)
                         rejeitar(mensagemDeErro)
@@ -274,6 +281,7 @@ class BancoDeDados extends Consultas {
         resumo = this.resumo
         
         this.sql = Consultas.queryInserirAnotacao(titulo,resumo)
+        
         idAnotacao = this.executarInsercao()
 
         return idAnotacao
@@ -323,11 +331,13 @@ class BancoDeDados extends Consultas {
         return dadosEncontrados 
     }
 
-    buscarPorId(id){
+    buscarPorId(){
         let tabela
         let dadosEncontrados
+        let id
 
         tabela = this.entidade
+        id = this.id
 
         this.sql = Consultas.queryBuscarPorId(tabela, id)
         dadosEncontrados = this.queryGenerica()
