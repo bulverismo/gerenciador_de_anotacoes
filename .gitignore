@@ -1,3 +1,4 @@
-db
+db/baseDeDados.db
+db/criar_tabelas.sql
 node_modules
 tags

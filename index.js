@@ -392,9 +392,10 @@ app.delete('/api/cartao/:idCartao', (requisicao, resposta) => {
 
 })
 
-app.listen(PORTA , (err) => {
-
-    if (err) console.log(err)
-    console.log(`Ouvindo na porta ${PORTA}`)
-})
-
+//app.listen(PORTA , (err) => {
+//
+//    if (err) console.log(err)
+//    console.log(`Ouvindo na porta ${PORTA}`)
+//})
+//
+module.exports = app
