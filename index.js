@@ -27,7 +27,7 @@ let banco = new BancoDeDados()
 //    .catch( erro => console.log(erro) )
 //
 
-app.use(Express.static('public', { extensions: ['html', 'htm']}))
+app.use(Express.static('publico', { extensions: ['html', 'htm']}))
 app.use(Express.json())
 
 // TODO: Validar requisicao.body
