@@ -27,7 +27,7 @@ banco.inicializarBanco()
     .catch( erro => console.log(erro) )
 
 
-//app.use(Express.static('../publico', { extensions: ['html', 'htm']}))
+app.use(Express.static('publico', { extensions: ['html', 'htm']}))
 app.use(Express.json())
 
 // TODO: Validar requisicao.body
@@ -398,4 +398,3 @@ app.listen(PORTA , (err) => {
     console.log(`Ouvindo na porta ${PORTA}`)
 })
 
-//module.exports = app
